@@ -6,6 +6,10 @@
     <title>Document</title>
   </head>
   <body>
+    <div id="app">
+      <p>{{name}}</p>
+      <span>{{age}}</span>
+    </div>
     <script src="/dist/umd/vue.js"></script>
     <script>
       let vm = new Vue({
@@ -13,12 +17,7 @@
         data() {
           return {
             name: "vue",
-            age: "4",
-            address: {
-              number: 0,
-              name: "tjs",
-            },
-            arr: [{ a: "1", b: "2" }],
+            age: "4"
           };
         },
       });

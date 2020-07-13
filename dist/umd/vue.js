@@ -181,6 +181,98 @@
     observe(data); //响应式原理
   }
 
+  var ncname = "[a-zA-Z_][\\-\\.0-9_a-zA-Z]*";
+  var qnameCapture = "((?:".concat(ncname, "\\:)?").concat(ncname, ")");
+  var startTagOpen = new RegExp("^<".concat(qnameCapture)); // 标签开头的正则 捕获的内容是标签名
+
+  var endTag = new RegExp("^<\\/".concat(qnameCapture, "[^>]*>")); // 匹配标签结尾的 </div>
+
+  var attribute = /^\s*([^\s"'<>\/=]+)(?:\s*(=)\s*(?:"([^"]*)"+|'([^']*)'+|([^\s"'=<>`]+)))?/; // 匹配属性的
+
+  var startTagClose = /^\s*(\/?)>/; // 匹配标签结束的 >
+
+  function start(tagName, attrs) {
+    console.log(tagName, attrs);
+  }
+
+  function end(tagName) {
+    console.log(tagName);
+  }
+
+  function chars(text) {
+    console.log(text);
+  }
+
+  function parseHTML(html) {
+    while (html) {
+      var textEnd = html.indexOf("<");
+
+      if (textEnd == 0) {
+        var startTagMatch = parseStartTag();
+
+        if (startTagMatch) {
+          start(startTagMatch.tagName, startTagMatch.attrs);
+          continue;
+        }
+
+        var endTagMatch = html.match(endTag);
+
+        if (endTagMatch) {
+          advance(endTagMatch[0].length);
+          end(endTagMatch[1]);
+          continue;
+        }
+      }
+
+      var text = void 0;
+
+      if (textEnd >= 0) {
+        text = html.substring(0, textEnd);
+      }
+
+      if (text) {
+        advance(text.length);
+        chars(text);
+      }
+    }
+
+    function advance(n) {
+      html = html.substring(n);
+    }
+
+    function parseStartTag() {
+      var start = html.match(startTagOpen);
+
+      if (start) {
+        var match = {
+          tagName: start[1],
+          attrs: []
+        };
+        advance(start[0].length);
+
+        var attr, _end;
+
+        while (!(_end = html.match(startTagClose)) && (attr = html.match(attribute))) {
+          advance(attr[0].length);
+          match.attrs.push({
+            name: attr[1],
+            value: attr[3]
+          });
+        }
+
+        if (_end) {
+          advance(_end[0].length);
+          return match;
+        }
+      }
+    }
+  }
+
+  function compileToFunctions(template) {
+    parseHTML(template);
+    return function () {};
+  }
+
   function initMixin(Vue) {
     //初始化流程
     Vue.prototype._init = function (options) {
@@ -188,7 +280,31 @@
       var vm = this; // vue 中使用 this.$options 指代的就是用户传递的属性
 
       vm.$options = options;
-      initState(vm);
+      initState(vm); // 如果用户传入了 el ,需要将页面渲染出来
+
+      if (vm.$options.el) {
+        vm.$mount(vm.$options.el);
+      }
+    };
+
+    Vue.prototype.$mount = function (el) {
+      var vm = this;
+      var options = vm.$options;
+      el = document.querySelector(el); //默认先会查找有没有render函数 ,没有render 采用template template也没有就用el中的内容
+
+      if (!options.render) {
+        //对模板进行编译
+        var template = options.template;
+
+        if (!template && el) {
+          template = el.outerHTML;
+        }
+
+        var render = compileToFunctions(template);
+        options.render = render; //需要将template 转换成render 方法;
+      }
+
+      options.render();
     };
   }
 
