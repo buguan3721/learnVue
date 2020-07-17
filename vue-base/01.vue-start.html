@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>Document</title>
+	</head>
+	<body>
+		<!-- 小胡子语法 -->
+		<div id="app">{{msg}}</div>
+
+		<script src="node_modules/vue/dist/vue.js"></script>
+		<script>
+			// vue  响应式 渐进式框架 view
+			// 核心 -> vue组件式开发 -> vue-router -> vuex -> vue-cli
+			// MVC  model view controller
+			// MVVM  model  viewModel view
+			// vm == viewModule
+			let vm = new Vue({
+				el: "#app", // vue 版本要求是 runtime -with -compiler
+				// vue中渲染方式  render函数 -> template(将template转换为了render) -> 外部模板
+				/* template: "<div>hello vue</div>",
+				render: function (createElements) {
+					return createElements("p", ["hello vue-render"]);
+				}, */
+				data() {
+					return {
+						msg: "hello",
+					};
+				},
+			});
+		</script>
+	</body>
+</html>

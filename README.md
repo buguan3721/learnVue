@@ -2,10 +2,13 @@
 
 _learn Vue note_
 
-## 1.初识 vue
+## 初识 vue-source
 
 ### npm run build:dev npm run serve
 
 ### vue-core
 
-### parse-html html -> ast
+### parse-html html -> ast -> function render
+
+
+## vue-base
